@@ -1,10 +1,5 @@
 import {GetStaticPaths, GetStaticProps, GetStaticPropsContext, NextPage} from "next";
-import unified from 'unified';
-import parse from 'remark-parse';
-import {remark} from "remark";
-import html from "remark-html";
 import {getAllPosts, getPost, Post} from "@/lib/getAllPosts";
-import fs from 'fs';
 import {MdToHtml} from "@/lib/mdToHtml";
 import matter from "gray-matter";
 import Head from "next/head";
@@ -25,9 +20,13 @@ const PostPage: NextPage = (props: PostProps) => {
             <title>{props.frontMatter.title}</title>
         </Head>
         <div className="w-full">
-            <article className="prose prose-slate md:prose-lg lg:prose-xl mx-auto"
-                     dangerouslySetInnerHTML={{__html: props.content}}>
+            <article className="prose prose-slate md:prose-lg lg:prose-2xl mx-auto">
+                        <h1>{props.frontMatter.title}</h1>
+                        <div dangerouslySetInnerHTML={{__html: props.content}}></div>
+                        <hr></hr>
+            <p>Article by {props.frontMatter.author}</p>
             </article>
+            
         </div>
     </>
 }
