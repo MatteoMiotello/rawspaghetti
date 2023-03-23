@@ -1,7 +1,4 @@
-import {GetStaticPaths, GetStaticProps, GetStaticPropsContext, NextPage} from "next";
-import {getAllPosts, getPost} from "@/lib/getAllPosts";
-import {MdToHtml} from "@/lib/mdToHtml";
-import matter from "gray-matter";
+import {GetStaticProps, NextPage} from "next";
 import Head from "next/head";
 import {collection} from "@/lib/collection/Collection";
 import {Post} from "@/lib/collection/entity/Post";
@@ -13,11 +10,8 @@ interface FrontMatterProps {
 
 interface PostProps {
     content: string,
-
     title: string,
-
     author: string,
-
     category: string
 }
 

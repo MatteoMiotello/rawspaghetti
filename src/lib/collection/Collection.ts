@@ -32,6 +32,8 @@ class EntityCollection<T> {
     getAll(): T[] {
         return this.entities
     }
+
+
 }
 
 
