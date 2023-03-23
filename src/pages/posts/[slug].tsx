@@ -1,8 +1,10 @@
 import {GetStaticPaths, GetStaticProps, GetStaticPropsContext, NextPage} from "next";
-import {getAllPosts, getPost, Post} from "@/lib/getAllPosts";
+import {getAllPosts, getPost} from "@/lib/getAllPosts";
 import {MdToHtml} from "@/lib/mdToHtml";
 import matter from "gray-matter";
 import Head from "next/head";
+import {collection} from "@/lib/collection/Collection";
+import {Post} from "@/lib/collection/entity/Post";
 
 interface FrontMatterProps {
     title: string,
@@ -11,20 +13,25 @@ interface FrontMatterProps {
 
 interface PostProps {
     content: string,
-    frontMatter: FrontMatterProps
+
+    title: string,
+
+    author: string,
+
+    category: string
 }
 
 const PostPage: NextPage = (props: PostProps) => {
     return <>
         <Head>
-            <title>{props.frontMatter.title}</title>
+            <title>{props.title}</title>
         </Head>
         <div className="w-full">
             <article className="prose prose-slate md:prose-lg lg:prose-2xl mx-auto">
-                        <h1>{props.frontMatter.title}</h1>
+                        <h1>{props.title}</h1>
                         <div dangerouslySetInnerHTML={{__html: props.content}}></div>
                         <hr></hr>
-            <p>Article by {props.frontMatter.author}</p>
+            <p>Article by {props.author}</p>
             </article>
             
         </div>
@@ -34,33 +41,27 @@ const PostPage: NextPage = (props: PostProps) => {
 export const getStaticProps: GetStaticProps = async (context) => {
     const slug = String(context.params.slug);
 
-    const post = getPost(slug)
+    const post = collection<Post>( 'posts' )
+        .filter( 'name', slug )
+        .getFirst()
 
-    if (post?.content == undefined) {
-        return {
-            props: {
-                content: null
-            }
-        }
-    }
-
-    const {data: frontMatter} = matter(post.content);
-    const content = await MdToHtml(post.content)
     return {
         props: {
-            content: content.toString(),
-            frontMatter: frontMatter
+            content: post?.content,
+            title: post?.title,
+            author: post?.author,
+            category: post?.category,
         }
     }
 }
 
 export const getStaticPaths = async (p: any) => {
-    const posts = getAllPosts()
+    const posts = collection<Post>( 'posts' ).getAll()
 
     return {
         paths: posts.map((post: Post) => ({
                 params: {
-                    slug: post.title
+                    slug: post.name
                 }
             })
         ),

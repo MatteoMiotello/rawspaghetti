@@ -1,6 +1,7 @@
 ---
 title: Markdown/MDX with Next.js
 author: Lee Robinson
+category: Dev
 ---
 
 ## H2
