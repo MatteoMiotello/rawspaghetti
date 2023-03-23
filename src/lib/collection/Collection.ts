@@ -1,17 +1,8 @@
 import fs from "fs";
-import {unified, VFileWithOutput} from "unified";
-import remarkParse from "remark-parse";
-import remarkFrontmatter from "remark-frontmatter";
-import remarkGfm from "remark-gfm";
-import remarkRehype from "remark-rehype";
-import rehypeStringify from "rehype-stringify";
-import remarkParseFrontmatter from "remark-parse-frontmatter";
-import emoji from "remark-emoji"
 import {buildEntity, Entity} from "@/lib/collection/entity/entities";
-import {Collection} from "yaml/types";
+import {processMarkdown} from "@/lib/utils/markdown";
 
 const collectionDir = 'resources/collections/';
-
 
 interface ICollection {
     name: string,
@@ -67,25 +58,13 @@ const buildCollectionPath = (relativePath: string) => {
     return collectionDir + relativePath + '/'
 }
 
-const parseContent = (content: Buffer): VFileWithOutput<any> => {
-    return unified()
-        .use(remarkParse)
-        .use(remarkFrontmatter)
-        .use(emoji)
-        .use(remarkParseFrontmatter)
-        .use(remarkGfm)
-        .use(remarkRehype)
-        .use(rehypeStringify)
-        .processSync(content);
-}
-
 export function collection<T extends Entity>(collection: ICollection): EntityCollection<T> {
     const collectionPath = buildCollectionPath(collection.dirPath)
     const files = fs.readdirSync(collectionPath)
 
     const entities = files.map((file) => {
         const content = fs.readFileSync(collectionPath + file)
-        const parsed = parseContent(content)
+        const parsed = processMarkdown(content)
         const name = file.replace(".md", "")
 
         let entity = buildEntity<T>(collection.type)
