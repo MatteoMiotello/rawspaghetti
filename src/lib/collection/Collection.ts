@@ -7,10 +7,27 @@ import remarkRehype from "remark-rehype";
 import rehypeStringify from "rehype-stringify";
 import remarkParseFrontmatter from "remark-parse-frontmatter";
 import emoji from "remark-emoji"
-import {Entity} from "@/lib/collection/entity/Entity";
-import remarkMdx from 'remark-mdx'
+import {buildEntity, Entity} from "@/lib/collection/entity/entities";
+import {Collection} from "yaml/types";
 
-const collectionDir = 'resources/';
+const collectionDir = 'resources/collections/';
+
+
+interface ICollection {
+    name: string,
+    type: CollectionType
+    dirPath: string
+}
+
+export enum CollectionType {
+    post = 'post'
+}
+
+export const posts: ICollection = {
+    name: 'Posts',
+    type: CollectionType.post,
+    dirPath: 'posts',
+}
 
 class EntityCollection<T> {
     entities: T[]
@@ -33,9 +50,18 @@ class EntityCollection<T> {
         return this.entities
     }
 
+    orderBy(key: string, order: 'ASC' | 'DESC'): this {
+        this.entities.sort((a: T, b: T) => {
+            if (order == 'ASC') {
+                return a[key] - b[key]
+            }
 
+            return b[key] - a[key]
+        })
+
+        return this
+    }
 }
-
 
 const buildCollectionPath = (relativePath: string) => {
     return collectionDir + relativePath + '/'
@@ -50,12 +76,11 @@ const parseContent = (content: Buffer): VFileWithOutput<any> => {
         .use(remarkGfm)
         .use(remarkRehype)
         .use(rehypeStringify)
-        .use(remarkMdx)
         .processSync(content);
 }
 
-export function collection<T>(collectionName) {
-    const collectionPath = buildCollectionPath(collectionName)
+export function collection<T extends Entity>(collection: ICollection): EntityCollection<T> {
+    const collectionPath = buildCollectionPath(collection.dirPath)
     const files = fs.readdirSync(collectionPath)
 
     const entities = files.map((file) => {
@@ -63,12 +88,12 @@ export function collection<T>(collectionName) {
         const parsed = parseContent(content)
         const name = file.replace(".md", "")
 
-        let entity: Entity = {
-            name: name,
-            content: parsed.value.toString()
-        }
+        let entity = buildEntity<T>(collection.type)
+        entity.content = parsed.value.toString()
+        entity.name = name
+        entity.fromRecord(parsed.data.frontmatter)
 
-        return Object.assign<T, Partial<T>>(entity, parsed.data.frontmatter)
+        return entity
     })
 
     return new EntityCollection<T>(entities)
