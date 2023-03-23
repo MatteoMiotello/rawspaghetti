@@ -54,9 +54,6 @@ const parseContent = (content: Buffer): VFileWithOutput<any> => {
 
 export function collection<T>(collectionName) {
     const collectionPath = buildCollectionPath(collectionName)
-
-    console.log(collectionPath)
-
     const files = fs.readdirSync(collectionPath)
 
     const entities = files.map((file) => {
