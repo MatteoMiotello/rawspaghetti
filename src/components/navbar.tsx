@@ -5,6 +5,5 @@ export const Navbar: React.FunctionComponent = (props) => {
         <h1>
             RawSpaghetti
         </h1>
-
     </nav>
 }

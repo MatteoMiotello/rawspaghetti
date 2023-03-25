@@ -1,23 +1,14 @@
 import fs from "fs";
-import {buildEntity, Entity} from "@/lib/collection/entity/entities";
 import {processMarkdown} from "@/lib/utils/markdown";
+import {Entity} from "@/lib/collection/entity/Entity";
+import {buildEntity, EntityType} from "@/lib/collection/entity";
 
 const collectionDir = 'resources/collections/';
 
-interface ICollection {
+export interface CollectionDefinition {
     name: string,
-    type: CollectionType
-    dirPath: string
-}
-
-export enum CollectionType {
-    post = 'post'
-}
-
-export const posts: ICollection = {
-    name: 'Posts',
-    type: CollectionType.post,
-    dirPath: 'posts',
+    type: EntityType,
+    resourcePath: string
 }
 
 class EntityCollection<T> {
@@ -28,7 +19,13 @@ class EntityCollection<T> {
     }
 
     filter(key: string, value: any): this {
-        this.entities = this.entities.filter((entity: T) => entity[key] === value)
+        this.entities = this.entities.filter((entity: T) => {
+            if ( !(key in entity) ) {
+                throw Error( 'Key not found in properties' )
+            }
+
+            return entity[key as keyof T] === value
+        })
 
         return this;
     }
@@ -58,21 +55,21 @@ const buildCollectionPath = (relativePath: string) => {
     return collectionDir + relativePath + '/'
 }
 
-export function collection<T extends Entity>(collection: ICollection): EntityCollection<T> {
-    const collectionPath = buildCollectionPath(collection.dirPath)
+export function collection<T extends Entity>(collection: CollectionDefinition): EntityCollection<T> {
+    const collectionPath = buildCollectionPath(collection.resourcePath)
     const files = fs.readdirSync(collectionPath)
 
-    const entities = files.map((file) => {
+    const entities = files.map((file): T => {
         const content = fs.readFileSync(collectionPath + file)
-        const parsed = processMarkdown(content)
+        const parsed = processMarkdown(content) //todo file validation
         const name = file.replace(".md", "")
 
-        let entity = buildEntity<T>(collection.type)
+        let entity = buildEntity( collection.type )
         entity.content = parsed.value.toString()
         entity.name = name
         entity.fromRecord(parsed.data.frontmatter)
 
-        return entity
+        return entity as T
     })
 
     return new EntityCollection<T>(entities)

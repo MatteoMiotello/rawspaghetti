@@ -1,8 +1,9 @@
 import {GetStaticProps, NextPage} from "next";
 import Head from "next/head";
-import {collection, posts} from "@/lib/collection/Collection";
-import {Post} from "@/lib/collection/entity/entities";
+import {collection} from "@/lib/collection/Collection";
 import moment from "moment";
+import {Post} from "@/lib/collection/entity/Post";
+import {postDef} from "@/lib/collection/entity";
 
 interface PostProps {
     content: string,
@@ -16,7 +17,7 @@ interface PostProps {
 
 const PostPage: NextPage = (props: PostProps) => {
     if (props.error != null) {
-        return <p>Not found</p> //todo make it better
+        return <p>Not found { props.error }</p> //todo make it better
     }
 
     return <>
@@ -38,7 +39,7 @@ const PostPage: NextPage = (props: PostProps) => {
 export const getStaticProps: GetStaticProps = async (context) => {
     const slug = String(context.params.slug);
 
-    const post = collection<Post>(posts)
+    const post = collection<Post>(postDef)
         .filter('name', slug)
         .getFirst()
 
@@ -56,13 +57,13 @@ export const getStaticProps: GetStaticProps = async (context) => {
             title: post.title,
             author: post.author,
             category: post.category,
-            date: moment(post.date).format("d/M/Y")
+            date: moment(post.date).format('d/M/Y')
         }
     }
 }
 
 export const getStaticPaths = async (p: any) => {
-    const postCollection = collection<Post>(posts).getAll()
+    const postCollection = collection<Post>(postDef).getAll()
 
     return {
         paths: postCollection.map((post: Post) => ({
