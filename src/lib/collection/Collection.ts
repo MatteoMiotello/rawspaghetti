@@ -11,7 +11,7 @@ export interface CollectionDefinition {
 	resourcePath: string;
 }
 
-class EntityCollection<T extends Entity> {
+export class EntityCollection<T extends Entity> {
 	entities: T[];
 
 	constructor(entities: T[]) {
