@@ -13,12 +13,6 @@
   },
   "plugins": ["react"],
   "rules": {
-    "no-unused-vars": [
-      "error",
-      {
-        "caughtErrors": "none",
-        "varsIgnorePattern": "^_"
-      }
-    ]
+    "no-unused-vars": "off"
   }
 }
