@@ -15,7 +15,7 @@ interface PostProps {
 	error: string | null;
 }
 
-const PostPage: NextPage = (props: PostProps) => {
+const PostPage: NextPage<PostProps> = (props: PostProps) => {
 	if (props.error != null) {
 		return <p>Not found {props.error}</p>; //todo make it better
 	}
@@ -40,6 +40,14 @@ const PostPage: NextPage = (props: PostProps) => {
 };
 
 export const getStaticProps: GetStaticProps = async (context) => {
+	if ( !context.params ) {
+		return {
+			props: {
+				error: "params is not defined"
+			}
+		}
+	}
+
 	const slug = String(context.params.slug);
 
 	const post = collection<Post>(postDef).filter('name', slug).getFirst();
