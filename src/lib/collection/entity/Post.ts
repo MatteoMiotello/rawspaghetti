@@ -8,13 +8,13 @@ export class Post implements Entity {
 	name: string;
 	title: string;
 	author: string;
-	category: string;
+	category?: string | null;
 	date: Date;
 
 	fromRecord(record: any) {
 		//todo type this shit
-		this.author = record.author;
-		this.category = record.category;
+		this.author = record.author || null;
+		this.category = record.category || null;
 		this.title = record.title;
 		this.date = moment(record.date).toDate();
 	}
