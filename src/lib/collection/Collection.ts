@@ -43,18 +43,23 @@ export class EntityCollection<T extends Entity> {
 			return this;
 		}
 
-		if (order == 'ASC')
+		if (order == 'ASC') {
 			this.entities.sort((a: T, b: T) => this.compare(a[key], b[key]));
-		else this.entities.sort((a: T, b: T) => this.compare(b[key], a[key]));
+		} else {
+			this.entities.sort((a: T, b: T) => this.compare(b[key], a[key]));
+		}
 
 		return this;
 	}
 
 	compare(a: any, b: any): number {
-		if (typeof a == 'number' && typeof b == 'number') return a - b;
+		if (typeof a == 'number' && typeof b == 'number') {
+			return a - b;
+		}
 
-		if (typeof a == 'string' && typeof b == 'string')
+		if (typeof a == 'string' && typeof b == 'string') {
 			return a.localeCompare(b);
+		}
 
 		return 0;
 	}
